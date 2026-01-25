@@ -3,131 +3,221 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asset Marketing YB - Fast Version</title>
+  <title>Asset Marketing YB</title>
   <style>
     :root {
-      --primary: #2196F3; --success: #10b981; --bg: #f5f7fa;
-      --container-bg: #ffffff; --text: #2c3e50; --text-muted: #64748b; --border: #f0f0f0;
+      --primary: #2196F3;
+      --success: #10b981;
+      --bg: #f5f7fa;
+      --container-bg: #ffffff;
+      --text: #2c3e50;
+      --text-muted: #64748b;
+      --border: #f0f0f0;
+      --card-hover: #f8fafc;
     }
+
     [data-theme="dark"] {
-      --bg: #0f172a; --container-bg: #1e293b; --text: #f1f5f9; --text-muted: #94a3b8; --border: #334155;
+      --bg: #0f172a;
+      --container-bg: #1e293b;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --card-hover: #0f172a;
     }
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 40px 20px; min-height: 100vh; transition: background 0.3s; }
-    .container { max-width: 1000px; margin: 0 auto; background: var(--container-bg); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); padding: 32px; }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; transition: all 0.2s ease; }
+    body { background: var(--bg); color: var(--text); padding: 40px 20px; min-height: 100vh; }
+    .container { max-width: 1100px; margin: 0 auto; background: var(--container-bg); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); padding: 32px; }
     
-    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid var(--border); padding-bottom: 20px; }
-    h1 { font-size: 24px; background: linear-gradient(90deg, #2196F3, #00BCD4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    h1 { font-size: 28px; letter-spacing: -1px; background: linear-gradient(90deg, #2196F3, #00BCD4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-    .btn-action { padding: 8px 16px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); cursor: pointer; font-weight: 600; font-size: 13px; }
-    .btn-action:hover { border-color: var(--primary); color: var(--primary); }
+    .theme-toggle { cursor: pointer; padding: 8px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); font-weight: 600; font-size: 13px; }
 
-    .filter-group { margin-bottom: 25px; }
-    .filter-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px; letter-spacing: 1px; }
-    .filter-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-    .btn-f { padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 700; }
-    .btn-f.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .controls { display: flex; flex-direction: column; gap: 20px; margin-bottom: 25px; }
+    .search-wrapper { position: relative; width: 100%; }
+    .search-input { width: 100%; padding: 12px 45px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); outline: none; }
+    .search-input:focus { border-color: var(--primary); }
+    .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 20px; color: var(--text-muted); }
 
-    .asset-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
-    .card { background: var(--container-bg); border: 1px solid var(--border); border-radius: 15px; padding: 15px; display: flex; align-items: center; justify-content: space-between; transition: transform 0.2s; }
-    .card:hover { transform: translateY(-3px); border-color: var(--primary); }
+    .filter-group { display: flex; flex-direction: column; gap: 10px; }
+    .filter-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
     
-    .info { display: flex; align-items: center; gap: 12px; }
-    .preview { width: 45px; height: 45px; border-radius: 10px; border: 1px solid var(--border); padding: 4px; background: white; object-fit: contain; }
+    .btn-filter { padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .btn-filter:hover, .btn-filter.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--text-muted); }
+    .tab.active { background: var(--primary); color: white; }
+
+    .file-list { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+    .file-list th { text-align: left; padding: 12px 20px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; }
+    .file-list td { background: var(--container-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 20px; }
+    .file-list td:first-child { border-left: 1px solid var(--border); border-radius: 12px 0 0 12px; }
+    .file-list td:last-child { border-right: 1px solid var(--border); border-radius: 0 12px 12px 0; }
+    .file-list tr:hover td { background: var(--card-hover); }
+
+    .file-info { display: flex; align-items: center; gap: 15px; }
+    .preview-box { width: 50px; height: 50px; border-radius: 10px; border: 1px solid var(--border); object-fit: contain; background: white; padding: 4px; }
     .name-stack { display: flex; flex-direction: column; }
-    .f-name { font-weight: 700; font-size: 14px; }
-    .f-meta { font-size: 10px; color: var(--text-muted); font-weight: 800; text-transform: uppercase; margin-top: 2px; }
+    .file-name { font-weight: 700; font-size: 14px; color: var(--text); }
+    .file-meta { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+    
+    .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .badge-bank { background: #dbeafe; color: #1e40af; }
+    .badge-wallet { background: #fef9c3; color: #854d0e; }
+    .badge-betslots { background: #dcfce7; color: #166534; }
+    .badge-totowin { background: #fee2e2; color: #991b1b; }
+    .badge-kingliga { background: #fdf2f8; color: #9d174d; }
+    .badge-social { background: #f3e8ff; color: #6b21a8; }
 
-    .copy-btn { padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); cursor: pointer; font-size: 11px; font-weight: 700; }
-    .copy-btn.success { background: var(--success); color: white; border-color: var(--success); }
+    .action-group { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-icon { padding: 10px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text-muted); cursor: pointer; }
+    .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
+
+    footer { margin-top: 40px; padding-top: 20px; text-align: center; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
+    footer b { color: var(--primary); }
+
+    .copied { color: var(--success) !important; border-color: var(--success) !important; }
   </style>
 </head>
 <body data-theme="light">
 
 <div class="container">
   <header>
-    <div>
-      <h1>Marketing Ops - YB</h1>
-    </div>
-    <button onclick="toggleTheme()" class="btn-action" id="themeBtn">Dark Mode</button>
+    <h1>Asset Marketing YB</h1>
+    <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">Dark Mode</button>
   </header>
 
-  <div class="filter-group">
-    <p class="filter-label">Filter by Brand</p>
-    <div class="filter-btns">
-      <button class="btn-f active" onclick="setFilter('brand', 'ALL', this)">All Brands</button>
-      <button class="btn-f" onclick="setFilter('brand', 'BETSLOTS88', this)">BETSLOTS88</button>
-      <button class="btn-f" onclick="setFilter('brand', 'TOTOWIN88', this)">TOTOWIN88</button>
-      <button class="btn-f" onclick="setFilter('brand', 'KINGLIGA', this)">KINGLIGA</button>
+  <div class="controls">
+    <div class="search-wrapper">
+      <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset..." onkeyup="applyFilters()">
+    </div>
+    
+    <div class="filter-group">
+      <p class="filter-label">Filter Brand</p>
+      <div class="filter-buttons" id="brandFilters">
+        <button class="btn-filter active" onclick="setFilter('brand', 'ALL', this)">All Brands</button>
+        <button class="btn-filter" onclick="setFilter('brand', 'BETSLOTS88', this)">BETSLOTS88</button>
+        <button class="btn-filter" onclick="setFilter('brand', 'TOTOWIN88', this)">TOTOWIN88</button>
+        <button class="btn-filter" onclick="setFilter('brand', 'KINGLIGA', this)">KINGLIGA</button>
+      </div>
+    </div>
+
+    <div class="filter-group">
+      <p class="filter-label">Filter Category</p>
+      <div class="filter-buttons" id="catFilters">
+        <button class="btn-filter active" onclick="setFilter('cat', 'ALL', this)">All Categories</button>
+        <button class="btn-filter" onclick="setFilter('cat', 'BANK', this)">BANK</button>
+        <button class="btn-filter" onclick="setFilter('cat', 'E-WALLET', this)">E-WALLET</button>
+        <button class="btn-filter" onclick="setFilter('cat', 'SOCIAL', this)">SOCIAL</button>
+      </div>
     </div>
   </div>
 
-  <div class="asset-grid" id="assetGrid"></div>
+  <div class="tabs">
+    <div class="tab active" onclick="setFilter('type', 'all', this)">All File Types</div>
+    <div class="tab" onclick="setFilter('type', 'webp', this)">WebP</div>
+    <div class="tab" onclick="setFilter('type', 'gif', this)">GIF</div>
+    <div class="tab" onclick="setFilter('type', 'ico', this)">ICO</div>
+  </div>
 
-  <footer style="margin-top: 40px; text-align: center; font-size: 12px; color: var(--text-muted); border-top: 1px solid var(--border); padding-top: 20px;">
-    &copy; 2026 Crafted by <b>Young Blood</b>
+  <table class="file-list">
+    <thead>
+      <tr>
+        <th>Asset Branding</th>
+        <th>Category</th>
+        <th style="text-align: right;">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="assetBody"></tbody>
+  </table>
+
+  <footer>
+    <p>&copy; 2026 Crafted by <b>Young Blood</b></p>
   </footer>
 </div>
 
 <script>
-  // Data Aset Statis (Tanpa API)
   const assets = [
-    { name: 'bca.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/bca.webp', type: 'webp', brand: 'COMMON' },
-    { name: 'bni.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/bni.webp', type: 'webp', brand: 'COMMON' },
-    { name: 'bri.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/bri.webp', type: 'webp', brand: 'COMMON' },
-    { name: 'mandiri.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/mandiri.webp', type: 'webp', brand: 'COMMON' },
-    { name: 'dana.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/dana.webp', type: 'webp', brand: 'COMMON' },
-    { name: 'qris.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/qris.webp', type: 'webp', brand: 'COMMON' },
-    { name: 'wa.gif', url: 'https://youngblood-g2352cm9ib.edgeone.dev/wa.gif', type: 'gif', brand: 'COMMON' },
-    { name: 'tele.gif', url: 'https://youngblood-g2352cm9ib.edgeone.dev/tele.gif', type: 'gif', brand: 'COMMON' },
-    { name: 'icon-betslots88.ico', url: 'https://youngblood-g2352cm9ib.edgeone.dev/icon-betslots88.ico', type: 'ico', brand: 'BETSLOTS88' },
-    { name: 'icon-totowin88.ico', url: 'https://youngblood-g2352cm9ib.edgeone.dev/icon-totowin88.ico', type: 'ico', brand: 'TOTOWIN88' },
-    { name: 'icon-kingliga.ico', url: 'https://youngblood-g2352cm9ib.edgeone.dev/icon-kingliga.ico', type: 'ico', brand: 'KINGLIGA' }
+    { name: 'bca.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/bca.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
+    { name: 'bni.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/bni.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
+    { name: 'bri.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/bri.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
+    { name: 'mandiri.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/mandiri.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
+    { name: 'dana.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/dana.webp', type: 'webp', cat: 'E-WALLET', brand: 'COMMON', badge: 'badge-wallet' },
+    { name: 'gopay.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/gopay.webp', type: 'webp', cat: 'E-WALLET', brand: 'COMMON', badge: 'badge-wallet' },
+    { name: 'qris.webp', url: 'https://youngblood-g2352cm9ib.edgeone.dev/qris.webp', type: 'webp', cat: 'E-WALLET', brand: 'COMMON', badge: 'badge-wallet' },
+    { name: 'icon-betslots88.ico', url: 'https://youngblood-g2352cm9ib.edgeone.dev/icon-betslots88.ico', type: 'ico', cat: 'ICON', brand: 'BETSLOTS88', badge: 'badge-betslots' },
+    { name: 'icon-totowin88.ico', url: 'https://youngblood-g2352cm9ib.edgeone.dev/icon-totowin88.ico', type: 'ico', cat: 'ICON', brand: 'TOTOWIN88', badge: 'badge-totowin' },
+    { name: 'icon-kingliga.ico', url: 'https://youngblood-g2352cm9ib.edgeone.dev/icon-kingliga.ico', type: 'ico', cat: 'ICON', brand: 'KINGLIGA', badge: 'badge-kingliga' },
+    { name: 'wa.gif', url: 'https://youngblood-g2352cm9ib.edgeone.dev/wa.gif', type: 'gif', cat: 'SOCIAL', brand: 'COMMON', badge: 'badge-social' },
+    { name: 'tele.gif', url: 'https://youngblood-g2352cm9ib.edgeone.dev/tele.gif', type: 'gif', cat: 'SOCIAL', brand: 'COMMON', badge: 'badge-social' }
   ];
 
-  let currentBrand = 'ALL';
+  let filters = { brand: 'ALL', cat: 'ALL', type: 'all' };
+  const assetBody = document.getElementById('assetBody');
 
-  function render() {
-    const grid = document.getElementById('assetGrid');
-    const filtered = currentBrand === 'ALL' ? assets : assets.filter(a => a.brand === currentBrand);
-    
-    grid.innerHTML = filtered.map(a => `
-      <div class="card">
-        <div class="info">
-          <img src="${a.url}" class="preview">
-          <div class="name-stack">
-            <span class="f-name">${a.name}</span>
-            <span class="f-meta">${a.type} • ${a.brand}</span>
+  function renderAssets(data) {
+    assetBody.innerHTML = data.map(asset => `
+      <tr>
+        <td>
+          <div class="file-info">
+            <img src="${asset.url}" class="preview-box" onerror="this.src='https://via.placeholder.com/50?text=IMG'">
+            <div class="name-stack">
+              <span class="file-name">${asset.name}</span>
+              <span class="file-meta">${asset.type.toUpperCase()}</span>
+            </div>
           </div>
-        </div>
-        <button class="copy-btn" onclick="copy('${a.url}', this)">Copy Link</button>
-      </div>
+        </td>
+        <td><span class="badge ${asset.badge}">${asset.brand !== 'COMMON' ? asset.brand : asset.cat}</span></td>
+        <td class="action-group">
+          <button class="btn-icon" title="Copy URL" onclick="copyValue('${asset.url}', this)">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          </button>
+          <a href="${asset.url}" target="_blank" class="btn-icon">
+            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+          </a>
+        </td>
+      </tr>
     `).join('');
   }
 
-  function setFilter(type, val, btn) {
-    document.querySelectorAll('.btn-f').forEach(b => b.classList.remove('active'));
+  function setFilter(key, value, btn) {
+    const parent = btn.parentElement;
+    parent.querySelectorAll('.btn-filter, .tab').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    currentBrand = val;
-    render();
+    filters[key] = value;
+    applyFilters();
+  }
+
+  function applyFilters() {
+    const query = document.getElementById('fileSearch').value.toLowerCase();
+    const filtered = assets.filter(a => {
+      const matchBrand = filters.brand === 'ALL' || a.brand === filters.brand;
+      const matchCat = filters.cat === 'ALL' || a.cat === filters.cat;
+      const matchType = filters.type === 'all' || a.type === filters.type;
+      const matchSearch = a.name.toLowerCase().includes(query) || a.cat.toLowerCase().includes(query) || a.brand.toLowerCase().includes(query);
+      return matchBrand && matchCat && matchType && matchSearch;
+    });
+    renderAssets(filtered);
   }
 
   function toggleTheme() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    document.getElementById('themeBtn').innerText = isDark ? 'Dark Mode' : 'Light Mode';
+    document.getElementById('themeBtn').innerText = isDark ? 'Light Mode' : 'Dark Mode';
   }
 
-  function copy(url, btn) {
-    navigator.clipboard.writeText(url).then(() => {
-      btn.innerText = 'Copied!';
-      btn.classList.add('success');
-      setTimeout(() => { btn.innerText = 'Copy Link'; btn.classList.remove('success'); }, 1500);
+  function copyValue(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.classList.add('copied');
+      setTimeout(() => btn.classList.remove('copied'), 1500);
     });
   }
 
-  // Langsung jalankan tanpa loading API
-  render();
+  renderAssets(assets);
 </script>
 </body>
 </html>

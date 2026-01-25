@@ -1,475 +1,183 @@
 <!DOCTYPE html>
-<html lang="zh">
-
+<html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Files Collection</title>
+  <title>Pro Asset Manager - Collection v2.0</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    :root {
+      --primary: #2196F3;
+      --success: #10b981;
+      --bg: #f5f7fa;
+      --text: #2c3e50;
     }
 
-    body {
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
-      min-height: 100vh;
-      padding: 40px 20px;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', -apple-system, sans-serif; }
+    body { background: var(--bg); color: var(--text); padding: 40px 20px; }
+    .container { max-width: 1100px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 32px; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+    h1 { font-size: 28px; letter-spacing: -1px; }
 
-    .container {
-      max-width: 1000px;
-      margin: 0 auto;
-      background-color: rgba(255, 255, 255, 0.95);
-      border-radius: 16px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-      padding: 32px;
-    }
+    /* Search & Filter */
+    .controls { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+    .search-wrapper { flex: 1; position: relative; min-width: 300px; }
+    .search-input { width: 100%; padding: 12px 40px; border-radius: 12px; border: 1.5px solid #eee; outline: none; transition: 0.3s; font-size: 15px; }
+    .search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.1); }
+    .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 20px; color: #94a3b8; }
 
-    h1 {
-      color: #2c3e50;
-      margin-bottom: 24px;
-      font-size: 42px;
-      font-weight: 700;
-      letter-spacing: -1px;
-    }
+    /* Tabs */
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; color: #64748b; transition: 0.3s; }
+    .tab.active { background: var(--primary); color: white; }
 
-    /* Search Feature Styles */
-    .search-container {
-      margin-bottom: 24px;
-      position: relative;
-    }
+    /* Table Styles */
+    .file-list { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
+    .file-list th { text-align: left; padding: 12px 20px; color: #64748b; font-size: 13px; text-transform: uppercase; }
+    .file-list td { background: #fff; border-top: 1px solid #f0f0f0; border-bottom: 1px solid #f0f0f0; padding: 12px 20px; transition: 0.2s; }
+    .file-list td:first-child { border-left: 1px solid #f0f0f0; border-radius: 12px 0 0 12px; }
+    .file-list td:last-child { border-right: 1px solid #f0f0f0; border-radius: 0 12px 12px 0; }
+    .file-list tr:hover td { background: #f8fafc; transform: translateY(-2px); }
 
-    .search-input {
-      width: 100%;
-      padding: 14px 20px 14px 45px;
-      font-size: 16px;
-      border: 2px solid rgba(44, 62, 80, 0.1);
-      border-radius: 12px;
-      outline: none;
-      transition: all 0.3s ease;
-      background-color: #f8f9fa;
-    }
+    /* Components */
+    .file-info { display: flex; align-items: center; gap: 15px; }
+    .preview-box { width: 50px; height: 50px; border-radius: 8px; border: 1px solid #eee; object-fit: contain; background: #fafafa; padding: 4px; }
+    .name-stack { display: flex; flex-direction: column; }
+    .file-name { font-weight: 600; font-size: 14px; color: #1e293b; }
+    .file-meta { font-size: 12px; color: #94a3b8; margin-top: 2px; }
+    
+    .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; background: #e2e8f0; color: #475569; text-transform: uppercase; }
+    .badge-bank { background: #dbeafe; color: #1e40af; }
+    .badge-wallet { background: #fef9c3; color: #854d0e; }
+    .badge-promo { background: #dcfce7; color: #166534; }
+    .badge-social { background: #f3e8ff; color: #6b21a8; }
 
-    .search-input:focus {
-      border-color: #2196F3;
-      background-color: white;
-      box-shadow: 0 4px 12px rgba(33, 150, 243, 0.1);
-    }
+    .action-group { display: flex; gap: 8px; justify-content: flex-end; }
+    .btn-icon { padding: 8px; border-radius: 8px; border: 1px solid #e2e8f0; background: white; cursor: pointer; transition: 0.2s; color: #64748b; display: flex; align-items: center; justify-content: center; }
+    .btn-icon:hover { background: #f1f5f9; color: var(--primary); border-color: var(--primary); }
 
-    .search-icon {
-      position: absolute;
-      left: 15px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #94a3b8;
-      width: 20px;
-      height: 20px;
-    }
-
-    /* Preview Styles */
-    .file-info-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-
-    .file-preview {
-      width: 45px;
-      height: 45px;
-      object-fit: contain;
-      border-radius: 8px;
-      border: 1px solid rgba(0,0,0,0.08);
-      background: #ffffff;
-      padding: 2px;
-    }
-
-    .file-list {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 6px;
-    }
-
-    .file-list th {
-      text-align: left;
-      padding: 16px 20px;
-      background-color: rgba(44, 62, 80, 0.05);
-      color: #2c3e50;
-      font-weight: 600;
-      font-size: 16px;
-      border-radius: 10px;
-    }
-
-    .file-list td {
-      padding: 0;
-      background-color: white;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
-      transition: all 0.3s ease;
-    }
-
-    .file-list tr:hover td {
-      background-color: #f8f9fa;
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    }
-
-    .file-list a {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 20px;
-      color: inherit;
-      text-decoration: none;
-      width: 100%;
-    }
-
-    .file-name {
-      color: #2c3e50;
-      font-weight: 500;
-      font-size: 15px;
-    }
-
-    .copy-btn {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 6px;
-      transition: all 0.2s ease;
-    }
-
-    .copy-btn:hover {
-      background-color: rgba(44, 62, 80, 0.05);
-      color: #2c3e50;
-    }
-
-    .copy-btn svg {
-      width: 20px;
-      height: 20px;
-      vertical-align: middle;
-    }
-
-    .copy-btn.copied {
-      color: #10b981;
-      pointer-events: none;
-    }
-
-    @keyframes scale {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.2); }
-    }
-    .copy-btn.copied svg { animation: scale 0.3s ease; }
+    @keyframes successPop { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+    .copied { color: var(--success) !important; border-color: var(--success) !important; animation: successPop 0.3s ease; }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <h1>Collection</h1>
 
-    <div class="search-container">
-      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
-      <input type="text" id="fileSearch" class="search-input" placeholder="Search files by name..." onkeyup="filterFiles()">
+<div class="container">
+  <header>
+    <h1>Asset Marketing Ops</h1>
+    <div class="badge">v2.0 Professional</div>
+  </header>
+
+  <div class="controls">
+    <div class="search-wrapper">
+      <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset (contoh: bca, dana, tele)..." onkeyup="filterFiles()">
     </div>
-
-    <table class="file-list" id="fileTable">
-      <thead>
-        <tr>
-          <th>Name</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/bca.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/bca.webp" class="file-preview" alt="preview">
-                <span class="file-name">bca.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/bni.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/bni.webp" class="file-preview" alt="preview">
-                <span class="file-name">bni.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/bri.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/bri.webp" class="file-preview" alt="preview">
-                <span class="file-name">bri.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/cimb.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/cimb.webp" class="file-preview" alt="preview">
-                <span class="file-name">cimb.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/dana.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/dana.webp" class="file-preview" alt="preview">
-                <span class="file-name">dana.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/danamon.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/danamon.webp" class="file-preview" alt="preview">
-                <span class="file-name">danamon.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/footer.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/footer.webp" class="file-preview" alt="preview">
-                <span class="file-name">footer.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/gopay.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/gopay.webp" class="file-preview" alt="preview">
-                <span class="file-name">gopay.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/linkaja.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/linkaja.webp" class="file-preview" alt="preview">
-                <span class="file-name">linkaja.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/mandiri.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/mandiri.webp" class="file-preview" alt="preview">
-                <span class="file-name">mandiri.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/online.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/online.webp" class="file-preview" alt="preview">
-                <span class="file-name">online.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/ovo.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/ovo.webp" class="file-preview" alt="preview">
-                <span class="file-name">ovo.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/permata.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/permata.webp" class="file-preview" alt="preview">
-                <span class="file-name">permata.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/qris.webp">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/qris.webp" class="file-preview" alt="preview">
-                <span class="file-name">qris.webp</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/tele.gif">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/tele.gif" class="file-preview" alt="preview">
-                <span class="file-name">tele.gif</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <a href="https://youngblood-dtacyyu4yu.edgeone.dev/wa.gif">
-              <div class="file-info-wrapper">
-                <img src="https://youngblood-dtacyyu4yu.edgeone.dev/wa.gif" class="file-preview" alt="preview">
-                <span class="file-name">wa.gif</span>
-              </div>
-              <button class="copy-btn" onclick="copyLink(this, event)" aria-label="Copy link">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                </svg>
-              </button>
-            </a>
-          </td>
-        </tr>
-      </tbody>
-    </table>
   </div>
 
-  <script>
-    function filterFiles() {
-      const input = document.getElementById('fileSearch');
-      const filter = input.value.toLowerCase();
-      const table = document.getElementById('fileTable');
-      const tr = table.getElementsByTagName('tr');
+  <div class="tabs">
+    <div class="tab active" onclick="filterTab('all', this)">All Assets</div>
+    <div class="tab" onclick="filterTab('webp', this)">Images (WebP)</div>
+    <div class="tab" onclick="filterTab('gif', this)">Animated (GIF)</div>
+  </div>
 
-      for (let i = 1; i < tr.length; i++) {
-        const fileNameSpan = tr[i].getElementsByClassName('file-name')[0];
-        if (fileNameSpan) {
-          const txtValue = fileNameSpan.textContent || fileNameSpan.innerText;
-          if (txtValue.toLowerCase().indexOf(filter) > -1) {
-            tr[i].style.display = "";
-          } else {
-            tr[i].style.display = "none";
-          }
-        }
-      }
-    }
+  <table class="file-list" id="fileTable">
+    <thead>
+      <tr>
+        <th>Asset & Details</th>
+        <th>Category</th>
+        <th style="text-align: right;">Quick Actions</th>
+      </tr>
+    </thead>
+    <tbody id="assetBody">
+      </tbody>
+  </table>
+</div>
 
-    function copyLink(button, event) {
-      event.preventDefault();
-      const link = button.closest('a').getAttribute('href');
-      navigator.clipboard.writeText(link).then(() => {
-        button.classList.add('copied');
-        button.innerHTML =
-          '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
-          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />' +
-          '</svg>';
+<script>
+  // Data aset bosku
+  const assets = [
+    { name: 'bca.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/bca.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'bni.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/bni.webp', type: 'webp', size: '11 KB', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'bri.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/bri.webp', type: 'webp', size: '13 KB', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'cimb.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/cimb.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'dana.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/dana.webp', type: 'webp', size: '9 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'danamon.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/danamon.webp', type: 'webp', size: '11 KB', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'footer.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/footer.webp', type: 'webp', size: '42 KB', cat: 'LAYOUT', badge: '' },
+    { name: 'gopay.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/gopay.webp', type: 'webp', size: '10 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'linkaja.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/linkaja.webp', type: 'webp', size: '11 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'mandiri.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/mandiri.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'online.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/online.webp', type: 'webp', size: '5 KB', cat: 'STATUS', badge: 'badge-promo' },
+    { name: 'ovo.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/ovo.webp', type: 'webp', size: '10 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'permata.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/permata.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'qris.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/qris.webp', type: 'webp', size: '15 KB', cat: 'PAYMENT', badge: 'badge-promo' },
+    { name: 'tele.gif', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/tele.gif', type: 'gif', size: '85 KB', cat: 'SOCIAL', badge: 'badge-social' },
+    { name: 'wawa.gif', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/wa.gif', type: 'gif', size: '92 KB', cat: 'SOCIAL', badge: 'badge-social' }
+  ];
 
-        setTimeout(() => {
-          button.classList.remove('copied');
-          button.innerHTML =
-            '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">' +
-            '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />' +
-            '</svg>';
-        }, 1500);
-      }).catch(err => {
-        console.error('Failed to copy:', err);
-      });
-    }
-  </script>
+  const assetBody = document.getElementById('assetBody');
+
+  // Render aset ke tabel
+  function renderAssets(data) {
+    assetBody.innerHTML = data.map(asset => `
+      <tr data-type="${asset.type}">
+        <td>
+          <div class="file-info">
+            <img src="${asset.url}" class="preview-box" alt="preview">
+            <div class="name-stack">
+              <span class="file-name">${asset.name}</span>
+              <span class="file-meta">${asset.type.toUpperCase()} • ${asset.size}</span>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge ${asset.badge}">${asset.cat}</span></td>
+        <td>
+          <div class="action-group">
+            <button class="btn-icon" title="Copy URL" onclick="copyValue('${asset.url}', this)">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </button>
+            <button class="btn-icon" title="Copy IMG Tag" onclick="copyValue('<img src=\\'${asset.url}\\' alt=\\'${asset.name.split('.')[0]}\\'>', this)">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+            </button>
+            <a href="${asset.url}" target="_blank" class="btn-icon" title="Open Link">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  // Load awal
+  renderAssets(assets);
+
+  // Copy Function
+  function copyValue(text, btn) {
+    navigator.clipboard.writeText(text).then(() => {
+      btn.classList.add('copied');
+      const oldHTML = btn.innerHTML;
+      btn.innerHTML = '<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = oldHTML;
+      }, 1500);
+    });
+  }
+
+  // Search
+  function filterFiles() {
+    const query = document.getElementById('fileSearch').value.toLowerCase();
+    const filtered = assets.filter(a => a.name.toLowerCase().includes(query) || a.cat.toLowerCase().includes(query));
+    renderAssets(filtered);
+  }
+
+  // Tabs
+  function filterTab(type, btn) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    if(type === 'all') renderAssets(assets);
+    else renderAssets(assets.filter(a => a.type === type));
+  }
+</script>
 </body>
-
 </html>

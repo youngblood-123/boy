@@ -27,7 +27,7 @@
     .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 20px; color: #94a3b8; }
 
     /* Tabs */
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 10px; flex-wrap: wrap; }
     .tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; color: #64748b; transition: 0.3s; }
     .tab.active { background: var(--primary); color: white; }
 
@@ -71,14 +71,17 @@
   <div class="controls">
     <div class="search-wrapper">
       <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset (contoh: bca, dana, tele)..." onkeyup="filterFiles()">
+      <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset (contoh: bca, totowin, png)..." onkeyup="filterFiles()">
     </div>
   </div>
 
   <div class="tabs">
     <div class="tab active" onclick="filterTab('all', this)">All Assets</div>
-    <div class="tab" onclick="filterTab('webp', this)">Images (WebP)</div>
-    <div class="tab" onclick="filterTab('gif', this)">Animated (GIF)</div>
+    <div class="tab" onclick="filterTab('webp', this)">WebP</div>
+    <div class="tab" onclick="filterTab('png', this)">PNG</div>
+    <div class="tab" onclick="filterTab('jpg', this)">JPG</div>
+    <div class="tab" onclick="filterTab('ico', this)">Icons</div>
+    <div class="tab" onclick="filterTab('gif', this)">GIF</div>
   </div>
 
   <table class="file-list" id="fileTable">
@@ -90,54 +93,54 @@
       </tr>
     </thead>
     <tbody id="assetBody">
-      </tbody>
+    </tbody>
   </table>
 </div>
 
 <script>
-  // Data aset bosku
+  // Menggunakan URL Relatif agar file di GitHub terbaca otomatis
   const assets = [
-    { name: 'bca.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/bca.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
-    { name: 'bni.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/bni.webp', type: 'webp', size: '11 KB', cat: 'BANK', badge: 'badge-bank' },
-    { name: 'bri.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/bri.webp', type: 'webp', size: '13 KB', cat: 'BANK', badge: 'badge-bank' },
-    { name: 'cimb.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/cimb.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
-    { name: 'dana.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/dana.webp', type: 'webp', size: '9 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
-    { name: 'danamon.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/danamon.webp', type: 'webp', size: '11 KB', cat: 'BANK', badge: 'badge-bank' },
-    { name: 'footer.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/footer.webp', type: 'webp', size: '42 KB', cat: 'LAYOUT', badge: '' },
-    { name: 'gopay.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/gopay.webp', type: 'webp', size: '10 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
-    { name: 'linkaja.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/linkaja.webp', type: 'webp', size: '11 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
-    { name: 'mandiri.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/mandiri.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
-    { name: 'online.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/online.webp', type: 'webp', size: '5 KB', cat: 'STATUS', badge: 'badge-promo' },
-    { name: 'ovo.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/ovo.webp', type: 'webp', size: '10 KB', cat: 'E-WALLET', badge: 'badge-wallet' },
-    { name: 'permata.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/permata.webp', type: 'webp', size: '12 KB', cat: 'BANK', badge: 'badge-bank' },
-    { name: 'qris.webp', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/qris.webp', type: 'webp', size: '15 KB', cat: 'PAYMENT', badge: 'badge-promo' },
-    { name: 'tele.gif', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/tele.gif', type: 'gif', size: '85 KB', cat: 'SOCIAL', badge: 'badge-social' },
-    { name: 'wa.gif', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/wa.gif', type: 'gif', size: '92 KB', cat: 'SOCIAL', badge: 'badge-social' },
-    { name: 'icon-totowin88.ico', url: 'https://youngblood-dtacyyu4yu.edgeone.dev/icon-totowin88.ico', type: 'ico', size: '2 KB', cat: 'TOTOWIN88', badge: 'badge-social' },
+    { name: 'bca.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/bca.webp', type: 'webp', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'bni.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/bni.webp', type: 'webp', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'bri.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/bri.webp', type: 'webp', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'cimb.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/cimb.webp', type: 'webp', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'dana.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/dana.webp', type: 'webp', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'danamon.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/danamon.webp', type: 'webp', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'footer.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/footer.webp', type: 'webp', cat: 'LAYOUT', badge: '' },
+    { name: 'gopay.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/gopay.webp', type: 'webp', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'linkaja.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/linkaja.webp', type: 'webp', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'mandiri.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/mandiri.webp', type: 'webp', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'online.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/online.webp', type: 'webp', cat: 'STATUS', badge: 'badge-promo' },
+    { name: 'ovo.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/ovo.webp', type: 'webp', cat: 'E-WALLET', badge: 'badge-wallet' },
+    { name: 'permata.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/permata.webp', type: 'webp', cat: 'BANK', badge: 'badge-bank' },
+    { name: 'qris.webp', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/qris.webp', type: 'webp', cat: 'PAYMENT', badge: 'badge-promo' },
+    { name: 'tele.gif', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/tele.gif', type: 'gif', cat: 'SOCIAL', badge: 'badge-social' },
+    { name: 'wa.gif', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/wa.gif', type: 'gif', cat: 'SOCIAL', badge: 'badge-social' },
+    { name: 'icon-totowin88.ico', url: 'https://youngblood-ve5na1n3t5.edgeone.dev/icon-totowin88.ico', type: 'ico', cat: 'TOTOWIN88', badge: 'badge-social' }
   ];
 
   const assetBody = document.getElementById('assetBody');
 
-  // Render aset ke tabel
   function renderAssets(data) {
+    if(!assetBody) return;
     assetBody.innerHTML = data.map(asset => `
       <tr data-type="${asset.type}">
         <td>
           <div class="file-info">
-            <img src="${asset.url}" class="preview-box" alt="preview">
+            <img src="${asset.url}" class="preview-box" alt="preview" onerror="this.src='https://via.placeholder.com/50?text=File'">
             <div class="name-stack">
               <span class="file-name">${asset.name}</span>
-              <span class="file-meta">${asset.type.toUpperCase()} • ${asset.size}</span>
+              <span class="file-meta">${asset.type.toUpperCase()}</span>
             </div>
           </div>
         </td>
         <td><span class="badge ${asset.badge}">${asset.cat}</span></td>
         <td>
           <div class="action-group">
-            <button class="btn-icon" title="Copy URL" onclick="copyValue('${asset.url}', this)">
+            <button class="btn-icon" title="Copy URL" onclick="copyValue('${window.location.origin}/${asset.url}', this)">
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
             </button>
-            <button class="btn-icon" title="Copy IMG Tag" onclick="copyValue('<img src=\\'${asset.url}\\' alt=\\'${asset.name.split('.')[0]}\\'>', this)">
+            <button class="btn-icon" title="Copy IMG Tag" onclick="copyValue('<img src=\\'${window.location.origin}/${asset.url}\\' alt=\\'${asset.name.split('.')[0]}\\'>', this)">
               <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
             </button>
             <a href="${asset.url}" target="_blank" class="btn-icon" title="Open Link">
@@ -149,10 +152,8 @@
     `).join('');
   }
 
-  // Load awal
   renderAssets(assets);
 
-  // Copy Function
   function copyValue(text, btn) {
     navigator.clipboard.writeText(text).then(() => {
       btn.classList.add('copied');
@@ -165,14 +166,12 @@
     });
   }
 
-  // Search
   function filterFiles() {
     const query = document.getElementById('fileSearch').value.toLowerCase();
     const filtered = assets.filter(a => a.name.toLowerCase().includes(query) || a.cat.toLowerCase().includes(query));
     renderAssets(filtered);
   }
 
-  // Tabs
   function filterTab(type, btn) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');

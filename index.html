@@ -86,7 +86,7 @@
     .hidden { opacity: 0 !important; transform: scale(1.2) !important; transition: 1.2s !important; pointer-events: none; }
 
     /* =========================================
-       DASHBOARD STYLES (DENGAN FILTER & DARK MODE)
+       DASHBOARD STYLES
        ========================================= */
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; transition: all 0.2s ease; }
     body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; }
@@ -157,12 +157,22 @@
   </header>
 
   <div class="controls">
-    <input type="text" id="fileSearch" class="search-input" placeholder="Cari nama, brand, atau kategori..." onkeyup="applyFilters()">
+    <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset..." onkeyup="applyFilters()">
     
+    <div class="filter-group">
+      <p class="filter-label">Filter Brand</p>
+      <div class="filter-buttons">
+        <button class="btn-filter active" onclick="setFilter('brand', 'ALL', this)">All Brands</button>
+        <button class="btn-filter" onclick="setFilter('brand', 'BETSLOTS88', this)">BETSLOTS88</button>
+        <button class="btn-filter" onclick="setFilter('brand', 'TOTOWIN88', this)">TOTOWIN88</button>
+        <button class="btn-filter" onclick="setFilter('brand', 'KINGLIGA', this)">KINGLIGA</button>
+      </div>
+    </div>
+
     <div class="filter-group">
       <p class="filter-label">Filter Category</p>
       <div class="filter-buttons">
-        <button class="btn-filter active" onclick="setFilter('cat', 'ALL', this)">All</button>
+        <button class="btn-filter active" onclick="setFilter('cat', 'ALL', this)">All Category</button>
         <button class="btn-filter" onclick="setFilter('cat', 'BANK', this)">BANK</button>
         <button class="btn-filter" onclick="setFilter('cat', 'E-WALLET', this)">E-WALLET</button>
         <button class="btn-filter" onclick="setFilter('cat', 'OTHER', this)">OTHER</button>
@@ -180,7 +190,7 @@
   <div class="asset-grid" id="assetBody"></div>
 
   <footer>
-    <p>&copy; 2026 Crafted by <b>Young Blood</b> | Secured Assets</p>
+    <p>&copy; 2026 Crafted by <b>Young Blood</b> | Premium Secured</p>
   </footer>
 </div>
 
@@ -236,40 +246,44 @@
 
   function logout() { sessionStorage.removeItem('yb_auth'); location.reload(); }
 
-  // --- DATA ASET ---
+  // --- DATA ASET LENGKAP DENGAN BRAND ---
   const assets = [
-    { name: 'bca.webp', cat: 'BANK', type: 'webp', b: 'badge-bank' },
-    { name: 'bni.webp', cat: 'BANK', type: 'webp', b: 'badge-bank' },
-    { name: 'bri.webp', cat: 'BANK', type: 'webp', b: 'badge-bank' },
-    { name: 'cimb.webp', cat: 'BANK', type: 'webp', b: 'badge-bank' },
-    { name: 'mandiri.webp', cat: 'BANK', type: 'webp', b: 'badge-bank' },
-    { name: 'danamon.webp', cat: 'BANK', type: 'webp', b: 'badge-bank' },
-    { name: 'permata.webp', cat: 'BANK', type: 'webp', b: 'badge-bank' },
-    { name: 'dana.webp', cat: 'E-WALLET', type: 'webp', b: 'badge-wallet' },
-    { name: 'gopay.webp', cat: 'E-WALLET', type: 'webp', b: 'badge-wallet' },
-    { name: 'ovo.webp', cat: 'E-WALLET', type: 'webp', b: 'badge-wallet' },
-    { name: 'linkaja.webp', cat: 'E-WALLET', type: 'webp', b: 'badge-wallet' },
-    { name: 'qris.webp', cat: 'E-WALLET', type: 'webp', b: 'badge-wallet' },
-    { name: 'wa.gif', cat: 'OTHER', type: 'gif', b: 'badge-other' },
-    { name: 'tele.gif', cat: 'OTHER', type: 'gif', b: 'badge-other' },
-    { name: 'online.webp', cat: 'OTHER', type: 'webp', b: 'badge-other' },
-    { name: 'footer.webp', cat: 'OTHER', type: 'webp', b: 'badge-other' },
-    { name: 'icon-totowin88.ico', cat: 'OTHER', type: 'ico', b: 'badge-other' }
+    { name: 'bca.webp', cat: 'BANK', type: 'webp', brand: 'COMMON', b: 'badge-bank' },
+    { name: 'bni.webp', cat: 'BANK', type: 'webp', brand: 'COMMON', b: 'badge-bank' },
+    { name: 'bri.webp', cat: 'BANK', type: 'webp', brand: 'COMMON', b: 'badge-bank' },
+    { name: 'cimb.webp', cat: 'BANK', type: 'webp', brand: 'COMMON', b: 'badge-bank' },
+    { name: 'mandiri.webp', cat: 'BANK', type: 'webp', brand: 'COMMON', b: 'badge-bank' },
+    { name: 'danamon.webp', cat: 'BANK', type: 'webp', brand: 'COMMON', b: 'badge-bank' },
+    { name: 'permata.webp', cat: 'BANK', type: 'webp', brand: 'COMMON', b: 'badge-bank' },
+    { name: 'dana.webp', cat: 'E-WALLET', type: 'webp', brand: 'COMMON', b: 'badge-wallet' },
+    { name: 'gopay.webp', cat: 'E-WALLET', type: 'webp', brand: 'COMMON', b: 'badge-wallet' },
+    { name: 'ovo.webp', cat: 'E-WALLET', type: 'webp', brand: 'COMMON', b: 'badge-wallet' },
+    { name: 'linkaja.webp', cat: 'E-WALLET', type: 'webp', brand: 'COMMON', b: 'badge-wallet' },
+    { name: 'qris.webp', cat: 'E-WALLET', type: 'webp', brand: 'COMMON', b: 'badge-wallet' },
+    { name: 'wa.gif', cat: 'OTHER', type: 'gif', brand: 'COMMON', b: 'badge-other' },
+    { name: 'tele.gif', cat: 'OTHER', type: 'gif', brand: 'COMMON', b: 'badge-other' },
+    { name: 'online.webp', cat: 'OTHER', type: 'webp', brand: 'COMMON', b: 'badge-other' },
+    { name: 'footer.webp', cat: 'OTHER', type: 'webp', brand: 'COMMON', b: 'badge-other' },
+    // Aset spesifik Brand
+    { name: 'icon-betslots88.ico', cat: 'OTHER', type: 'ico', brand: 'BETSLOTS88', b: 'badge-other' },
+    { name: 'icon-totowin88.ico', cat: 'OTHER', type: 'ico', brand: 'TOTOWIN88', b: 'badge-other' },
+    { name: 'icon-kingliga.ico', cat: 'OTHER', type: 'ico', brand: 'KINGLIGA', b: 'badge-other' }
   ];
 
-  let filters = { cat: 'ALL', type: 'all' };
+  let filters = { brand: 'ALL', cat: 'ALL', type: 'all' };
 
   function renderAssets(data) {
     const grid = document.getElementById('assetBody');
     grid.innerHTML = data.map(asset => {
       const fullUrl = base + asset.name;
+      const displayTag = asset.brand !== 'COMMON' ? asset.brand : asset.cat;
       return `
       <div class="asset-card">
         <div class="file-info">
           <img src="${fullUrl}" class="preview-box" loading="lazy">
           <div class="name-stack">
             <span class="file-name">${asset.name}</span>
-            <span class="badge ${asset.b}">${asset.cat}</span>
+            <span class="badge ${asset.b}">${displayTag}</span>
           </div>
         </div>
         <div class="action-group">
@@ -291,10 +305,11 @@
   function applyFilters() {
     const query = document.getElementById('fileSearch').value.toLowerCase();
     const filtered = assets.filter(a => {
+      const matchBrand = filters.brand === 'ALL' || a.brand === filters.brand;
       const matchCat = filters.cat === 'ALL' || a.cat === filters.cat;
       const matchType = filters.type === 'all' || a.type === filters.type;
-      const matchSearch = a.name.toLowerCase().includes(query);
-      return matchCat && matchType && matchSearch;
+      const matchSearch = a.name.toLowerCase().includes(query) || a.brand.toLowerCase().includes(query);
+      return matchBrand && matchCat && matchType && matchSearch;
     });
     renderAssets(filtered);
   }

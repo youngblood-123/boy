@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asset Marketing YB - Pro v5.0</title>
+  <title>Asset Marketing YB - Full Ultra v5.1</title>
   <style>
     :root {
       --primary: #2196F3;
@@ -51,7 +51,7 @@
     .tab { padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--text-muted); }
     .tab.active { background: var(--primary); color: white; }
 
-    /* GRID SYSTEM: 1 Kolom di Mobile, 2 Kolom di Desktop */
+    /* LAYOUT: 1 Kolom di Mobile, 2 Kolom di Desktop */
     .asset-grid {
       display: grid;
       grid-template-columns: 1fr;
@@ -113,7 +113,7 @@
   <div class="controls">
     <div class="search-wrapper">
       <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset (nama, brand, atau kategori)..." onkeyup="applyFilters()">
+      <input type="text" id="fileSearch" class="search-input" placeholder="Cari nama, brand, atau kategori..." onkeyup="applyFilters()">
     </div>
     
     <div class="filter-group">
@@ -133,6 +133,7 @@
         <button class="btn-filter" onclick="setFilter('cat', 'BANK', this)">BANK</button>
         <button class="btn-filter" onclick="setFilter('cat', 'E-WALLET', this)">E-WALLET</button>
         <button class="btn-filter" onclick="setFilter('cat', 'SOCIAL', this)">SOCIAL</button>
+        <button class="btn-filter" onclick="setFilter('cat', 'ICON', this)">ICON</button>
       </div>
     </div>
   </div>
@@ -148,38 +149,49 @@
     </div>
 
   <footer>
-    <p>&copy; 2026 Crafted by <b>Young Blood</b></p>
+    <p>&copy; 2026 Crafted by <b>Young Blood Ops</b></p>
   </footer>
 </div>
 
-
-
 <script>
+  // DAFTAR SELURUH ASET (FULL)
   const assets = [
+    // --- BANK ---
     { name: 'bca.webp', url: 'https://youngblood-falsb9fy5y.edgeone.dev/bca.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
     { name: 'bni.webp', url: 'https://youngblood-falsb9fy5y.edgeone.dev/bni.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
     { name: 'bri.webp', url: 'https://youngblood-falsb9fy5y.edgeone.dev/bri.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
     { name: 'mandiri.webp', url: 'https://youngblood-falsb9fy5y.edgeone.dev/mandiri.webp', type: 'webp', cat: 'BANK', brand: 'COMMON', badge: 'badge-bank' },
+    
+    // --- E-WALLET ---
     { name: 'dana.webp', url: 'https://youngblood-falsb9fy5y.edgeone.dev/dana.webp', type: 'webp', cat: 'E-WALLET', brand: 'COMMON', badge: 'badge-wallet' },
     { name: 'gopay.webp', url: 'https://youngblood-falsb9fy5y.edgeone.dev/gopay.webp', type: 'webp', cat: 'E-WALLET', brand: 'COMMON', badge: 'badge-wallet' },
     { name: 'qris.webp', url: 'https://youngblood-falsb9fy5y.edgeone.dev/qris.webp', type: 'webp', cat: 'E-WALLET', brand: 'COMMON', badge: 'badge-wallet' },
+    
+    // --- SOCIAL & GIF ---
+    { name: 'wa.gif', url: 'https://youngblood-falsb9fy5y.edgeone.dev/wa.gif', type: 'gif', cat: 'SOCIAL', brand: 'COMMON', badge: 'badge-social' },
+    { name: 'tele.gif', url: 'https://youngblood-falsb9fy5y.edgeone.dev/tele.gif', type: 'gif', cat: 'SOCIAL', brand: 'COMMON', badge: 'badge-social' },
+    
+    // --- BRAND SPECIFIC ICONS ---
     { name: 'icon-betslots88.ico', url: 'https://youngblood-falsb9fy5y.edgeone.dev/icon-betslots88.ico', type: 'ico', cat: 'ICON', brand: 'BETSLOTS88', badge: 'badge-betslots' },
     { name: 'icon-totowin88.ico', url: 'https://youngblood-falsb9fy5y.edgeone.dev/icon-totowin88.ico', type: 'ico', cat: 'ICON', brand: 'TOTOWIN88', badge: 'badge-totowin' },
-    { name: 'icon-kingliga.ico', url: 'https://youngblood-falsb9fy5y.edgeone.dev/icon-kingliga.ico', type: 'ico', cat: 'ICON', brand: 'KINGLIGA', badge: 'badge-kingliga' },
-    { name: 'wa.gif', url: 'https://youngblood-falsb9fy5y.edgeone.dev/wa.gif', type: 'gif', cat: 'SOCIAL', brand: 'COMMON', badge: 'badge-social' },
-    { name: 'tele.gif', url: 'https://youngblood-falsb9fy5y.edgeone.dev/tele.gif', type: 'gif', cat: 'SOCIAL', brand: 'COMMON', badge: 'badge-social' }
+    { name: 'icon-kingliga.ico', url: 'https://youngblood-falsb9fy5y.edgeone.dev/icon-kingliga.ico', type: 'ico', cat: 'ICON', brand: 'KINGLIGA', badge: 'badge-kingliga' }
   ];
 
   let filters = { brand: 'ALL', cat: 'ALL', type: 'all' };
 
   function renderAssets(data) {
     const assetBody = document.getElementById('assetBody');
+    if (data.length === 0) {
+      assetBody.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding: 40px; color: var(--text-muted);">Aset tidak ditemukan...</div>`;
+      return;
+    }
+
     assetBody.innerHTML = data.map(asset => `
       <div class="asset-card">
         <div class="file-info">
-          <img src="${asset.url}" class="preview-box" loading="lazy" onerror="this.src='https://via.placeholder.com/50?text=IMG'">
+          <img src="${asset.url}" class="preview-box" loading="lazy" decoding="async" onerror="this.onerror=null;this.src='https://via.placeholder.com/50?text=IMG'">
           <div class="name-stack">
-            <span class="file-name">${asset.name}</span>
+            <span class="file-name" title="${asset.name}">${asset.name}</span>
             <span class="badge ${asset.badge}">${asset.brand !== 'COMMON' ? asset.brand : asset.cat}</span>
           </div>
         </div>
@@ -222,17 +234,22 @@
   function toggleTheme() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    document.getElementById('themeBtn').innerText = isDark ? 'Dark Mode' : 'Light Mode';
+    document.getElementById('themeBtn').innerText = isDark ? 'Light Mode' : 'Dark Mode';
   }
 
   function copyValue(text, btn) {
     navigator.clipboard.writeText(text).then(() => {
       btn.classList.add('copied');
-      setTimeout(() => btn.classList.remove('copied'), 1500);
+      const originalInner = btn.innerHTML;
+      btn.innerHTML = `<svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+      setTimeout(() => {
+        btn.classList.remove('copied');
+        btn.innerHTML = originalInner;
+      }, 1500);
     });
   }
 
-  // Initial Render
+  // Jalankan render pertama kali
   renderAssets(assets);
 </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Asset Marketing YB</title>
+  <title>Asset Marketing YB - Pro v5.0</title>
   <style>
     :root {
       --primary: #2196F3;
@@ -26,45 +26,66 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; transition: all 0.2s ease; }
-    body { background: var(--bg); color: var(--text); padding: 40px 20px; min-height: 100vh; }
-    .container { max-width: 1100px; margin: 0 auto; background: var(--container-bg); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); padding: 32px; }
+    body { background: var(--bg); color: var(--text); padding: 20px; min-height: 100vh; }
+    .container { max-width: 1200px; margin: 0 auto; background: var(--container-bg); border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.05); padding: 25px; }
     
     header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-    h1 { font-size: 28px; letter-spacing: -1px; background: linear-gradient(90deg, #2196F3, #00BCD4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    h1 { font-size: 24px; letter-spacing: -1px; background: linear-gradient(90deg, #2196F3, #00BCD4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
 
-    .theme-toggle { cursor: pointer; padding: 8px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); font-weight: 600; font-size: 13px; }
+    .theme-toggle { cursor: pointer; padding: 8px 16px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); font-weight: 600; font-size: 12px; }
 
-    .controls { display: flex; flex-direction: column; gap: 20px; margin-bottom: 25px; }
+    .controls { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
     .search-wrapper { position: relative; width: 100%; }
-    .search-input { width: 100%; padding: 12px 45px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); outline: none; }
+    .search-input { width: 100%; padding: 12px 45px; border-radius: 12px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); outline: none; font-size: 14px; }
     .search-input:focus { border-color: var(--primary); }
-    .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 20px; color: var(--text-muted); }
+    .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); width: 18px; color: var(--text-muted); }
 
-    .filter-group { display: flex; flex-direction: column; gap: 10px; }
-    .filter-label { font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-    .filter-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    .filter-group { display: flex; flex-direction: column; gap: 8px; }
+    .filter-label { font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .filter-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
     
-    .btn-filter { padding: 8px 14px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); cursor: pointer; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .btn-filter { padding: 6px 12px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text); cursor: pointer; font-size: 11px; font-weight: 700; text-transform: uppercase; }
     .btn-filter:hover, .btn-filter.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-    .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
-    .tab { padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; color: var(--text-muted); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 10px; flex-wrap: wrap; }
+    .tab { padding: 6px 12px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 13px; color: var(--text-muted); }
     .tab.active { background: var(--primary); color: white; }
 
-    .file-list { width: 100%; border-collapse: separate; border-spacing: 0 8px; }
-    .file-list th { text-align: left; padding: 12px 20px; color: var(--text-muted); font-size: 12px; text-transform: uppercase; }
-    .file-list td { background: var(--container-bg); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 12px 20px; }
-    .file-list td:first-child { border-left: 1px solid var(--border); border-radius: 12px 0 0 12px; }
-    .file-list td:last-child { border-right: 1px solid var(--border); border-radius: 0 12px 12px 0; }
-    .file-list tr:hover td { background: var(--card-hover); }
+    /* GRID SYSTEM: 1 Kolom di Mobile, 2 Kolom di Desktop */
+    .asset-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
 
-    .file-info { display: flex; align-items: center; gap: 15px; }
-    .preview-box { width: 50px; height: 50px; border-radius: 10px; border: 1px solid var(--border); object-fit: contain; background: white; padding: 4px; }
-    .name-stack { display: flex; flex-direction: column; }
-    .file-name { font-weight: 700; font-size: 14px; color: var(--text); }
-    .file-meta { font-size: 11px; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
+    @media (min-width: 768px) {
+      .asset-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .asset-card {
+      background: var(--container-bg);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .asset-card:hover {
+      border-color: var(--primary);
+      background: var(--card-hover);
+      transform: translateY(-2px);
+    }
+
+    .file-info { display: flex; align-items: center; gap: 12px; overflow: hidden; }
+    .preview-box { width: 48px; height: 48px; border-radius: 10px; border: 1px solid var(--border); object-fit: contain; background: white; padding: 4px; flex-shrink: 0; }
+    .name-stack { display: flex; flex-direction: column; overflow: hidden; }
+    .file-name { font-weight: 700; font-size: 14px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     
-    .badge { padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 800; text-transform: uppercase; }
+    .badge { padding: 3px 8px; border-radius: 5px; font-size: 9px; font-weight: 800; text-transform: uppercase; width: fit-content; margin-top: 4px; }
     .badge-bank { background: #dbeafe; color: #1e40af; }
     .badge-wallet { background: #fef9c3; color: #854d0e; }
     .badge-betslots { background: #dcfce7; color: #166534; }
@@ -72,13 +93,12 @@
     .badge-kingliga { background: #fdf2f8; color: #9d174d; }
     .badge-social { background: #f3e8ff; color: #6b21a8; }
 
-    .action-group { display: flex; gap: 8px; justify-content: flex-end; }
-    .btn-icon { padding: 10px; border-radius: 10px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text-muted); cursor: pointer; }
+    .right-section { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; flex-shrink: 0; }
+    .action-group { display: flex; gap: 6px; }
+    .btn-icon { padding: 8px; border-radius: 8px; border: 1.5px solid var(--border); background: var(--container-bg); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .btn-icon:hover { color: var(--primary); border-color: var(--primary); }
 
-    footer { margin-top: 40px; padding-top: 20px; text-align: center; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 13px; }
-    footer b { color: var(--primary); }
-
+    footer { margin-top: 40px; padding-top: 20px; text-align: center; border-top: 1px solid var(--border); color: var(--text-muted); font-size: 12px; }
     .copied { color: var(--success) !important; border-color: var(--success) !important; }
   </style>
 </head>
@@ -86,19 +106,19 @@
 
 <div class="container">
   <header>
-    <h1>Asset Marketing YB</h1>
+    <h1>Marketing Asset YB</h1>
     <button class="theme-toggle" onclick="toggleTheme()" id="themeBtn">Dark Mode</button>
   </header>
 
   <div class="controls">
     <div class="search-wrapper">
       <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-      <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset..." onkeyup="applyFilters()">
+      <input type="text" id="fileSearch" class="search-input" placeholder="Cari aset (nama, brand, atau kategori)..." onkeyup="applyFilters()">
     </div>
     
     <div class="filter-group">
       <p class="filter-label">Filter Brand</p>
-      <div class="filter-buttons" id="brandFilters">
+      <div class="filter-buttons">
         <button class="btn-filter active" onclick="setFilter('brand', 'ALL', this)">All Brands</button>
         <button class="btn-filter" onclick="setFilter('brand', 'BETSLOTS88', this)">BETSLOTS88</button>
         <button class="btn-filter" onclick="setFilter('brand', 'TOTOWIN88', this)">TOTOWIN88</button>
@@ -108,7 +128,7 @@
 
     <div class="filter-group">
       <p class="filter-label">Filter Category</p>
-      <div class="filter-buttons" id="catFilters">
+      <div class="filter-buttons">
         <button class="btn-filter active" onclick="setFilter('cat', 'ALL', this)">All Categories</button>
         <button class="btn-filter" onclick="setFilter('cat', 'BANK', this)">BANK</button>
         <button class="btn-filter" onclick="setFilter('cat', 'E-WALLET', this)">E-WALLET</button>
@@ -124,21 +144,15 @@
     <div class="tab" onclick="setFilter('type', 'ico', this)">ICO</div>
   </div>
 
-  <table class="file-list">
-    <thead>
-      <tr>
-        <th>Asset Branding</th>
-        <th>Category</th>
-        <th style="text-align: right;">Actions</th>
-      </tr>
-    </thead>
-    <tbody id="assetBody"></tbody>
-  </table>
+  <div class="asset-grid" id="assetBody">
+    </div>
 
   <footer>
     <p>&copy; 2026 Crafted by <b>Young Blood</b></p>
   </footer>
 </div>
+
+
 
 <script>
   const assets = [
@@ -157,30 +171,31 @@
   ];
 
   let filters = { brand: 'ALL', cat: 'ALL', type: 'all' };
-  const assetBody = document.getElementById('assetBody');
 
   function renderAssets(data) {
+    const assetBody = document.getElementById('assetBody');
     assetBody.innerHTML = data.map(asset => `
-      <tr>
-        <td>
-          <div class="file-info">
-            <img src="${asset.url}" class="preview-box" onerror="this.src='https://via.placeholder.com/50?text=IMG'">
-            <div class="name-stack">
-              <span class="file-name">${asset.name}</span>
-              <span class="file-meta">${asset.type.toUpperCase()}</span>
-            </div>
+      <div class="asset-card">
+        <div class="file-info">
+          <img src="${asset.url}" class="preview-box" loading="lazy" onerror="this.src='https://via.placeholder.com/50?text=IMG'">
+          <div class="name-stack">
+            <span class="file-name">${asset.name}</span>
+            <span class="badge ${asset.badge}">${asset.brand !== 'COMMON' ? asset.brand : asset.cat}</span>
           </div>
-        </td>
-        <td><span class="badge ${asset.badge}">${asset.brand !== 'COMMON' ? asset.brand : asset.cat}</span></td>
-        <td class="action-group">
-          <button class="btn-icon" title="Copy URL" onclick="copyValue('${asset.url}', this)">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-          </button>
-          <a href="${asset.url}" target="_blank" class="btn-icon">
-            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-          </a>
-        </td>
-      </tr>
+        </div>
+        
+        <div class="right-section">
+          <div class="action-group">
+            <button class="btn-icon" title="Copy URL" onclick="copyValue('${asset.url}', this)">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            </button>
+            <a href="${asset.url}" target="_blank" class="btn-icon">
+              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+            </a>
+          </div>
+          <span style="font-size: 9px; font-weight: 800; color: var(--text-muted);">${asset.type.toUpperCase()}</span>
+        </div>
+      </div>
     `).join('');
   }
 
@@ -207,7 +222,7 @@
   function toggleTheme() {
     const isDark = document.body.getAttribute('data-theme') === 'dark';
     document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
-    document.getElementById('themeBtn').innerText = isDark ? 'Light Mode' : 'Dark Mode';
+    document.getElementById('themeBtn').innerText = isDark ? 'Dark Mode' : 'Light Mode';
   }
 
   function copyValue(text, btn) {
@@ -217,6 +232,7 @@
     });
   }
 
+  // Initial Render
   renderAssets(assets);
 </script>
 </body>

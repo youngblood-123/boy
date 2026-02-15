@@ -359,38 +359,6 @@
       stroke-linejoin: round;
     }
 
-    /* Info Section */
-    .info-section {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    }
-
-    .info-row:last-child {
-      border-bottom: none;
-    }
-
-    .info-key {
-      font-size: 12px;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .info-value {
-      font-size: 12px;
-      font-family: var(--font-mono);
-      color: var(--text-secondary);
-      font-weight: 600;
-    }
-
     /* Footer */
     .app-footer {
       text-align: center;
@@ -477,30 +445,11 @@
       transform: translateX(-50%) translateY(0);
     }
 
-    /* Back Link */
-    .back-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 8px 0;
-      transition: color 0.2s;
-    }
-
-    .back-link:hover {
-      color: var(--accent);
-    }
   </style>
 </head>
 <body>
 
   <div class="app-container">
-    <!-- Back Navigation — points to parent site root -->
-    <a href="https://rajabayangan.com/" class="back-link">&larr; Kembali ke Dashboard</a>
-
     <!-- Header -->
     <div class="app-header">
       <div class="logo-icon">
@@ -576,32 +525,6 @@
       </div>
     </div>
 
-    <!-- Info Card -->
-    <div class="card" id="infoCard" style="display: none;">
-      <div class="info-section">
-        <div class="info-row">
-          <span class="info-key">Algoritma</span>
-          <span class="info-value">HMAC-SHA1</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Digit</span>
-          <span class="info-value">6</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Periode</span>
-          <span class="info-value">30 detik</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Epoch</span>
-          <span class="info-value" id="infoEpoch">—</span>
-        </div>
-        <div class="info-row">
-          <span class="info-key">Time Step (T)</span>
-          <span class="info-value" id="infoStep">—</span>
-        </div>
-      </div>
-    </div>
-
     <!-- Footer -->
     <div class="app-footer">
       <p>Implementasi murni HTML, CSS &amp; JavaScript &middot; Standar <a href="https://datatracker.ietf.org/doc/html/rfc6238" target="_blank" rel="noopener">RFC 6238</a></p>
@@ -639,9 +562,6 @@
   const elOtpCode      = document.getElementById('otpCode');
   const elTimerSeconds = document.getElementById('timerSeconds');
   const elTimerRing    = document.getElementById('timerRing');
-  const elInfoCard     = document.getElementById('infoCard');
-  const elInfoEpoch    = document.getElementById('infoEpoch');
-  const elInfoStep     = document.getElementById('infoStep');
   const elToast        = document.getElementById('toast');
   const elCopyText     = document.getElementById('copyText');
   const elBtnCopy      = document.getElementById('btnCopy');
@@ -761,11 +681,6 @@
     }
 
     elOtpCode.textContent = code.substring(0, 3) + ' ' + code.substring(3);
-
-    // Update info
-    const epoch = Math.floor(Date.now() / 1000);
-    elInfoEpoch.textContent = epoch;
-    elInfoStep.textContent = timeStep;
   }
 
   // ─── Main Tick Loop ───────────────────────────────────────────────
@@ -797,7 +712,6 @@
     // Show TOTP display, hide empty state
     elEmptyState.classList.remove('active');
     elTotpDisplay.classList.add('active');
-    elInfoCard.style.display = '';
 
     // Generate first code immediately
     lastTimeStep = getCurrentTimeStep();

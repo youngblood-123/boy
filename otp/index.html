@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TOTP Authenticator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0b0f19;
+      --bg-secondary: #111827;
+      --bg-card: #1a2236;
+      --bg-input: #0f172a;
+      --border: #1e3a5f;
+      --border-focus: #3b82f6;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --accent-glow: rgba(59, 130, 246, 0.25);
+      --success: #22c55e;
+      --success-glow: rgba(34, 197, 94, 0.25);
+      --danger: #ef4444;
+      --ring-track: #1e293b;
+      --ring-fill: #3b82f6;
+      --code-color: #e2e8f0;
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(ellipse at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+                  radial-gradient(ellipse at 70% 80%, rgba(139, 92, 246, 0.06) 0%, transparent 50%);
+      animation: bgShift 20s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    @keyframes bgShift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-5%, -5%) rotate(3deg); }
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Header */
+    .app-header {
+      text-align: center;
+      padding: 10px 0;
+    }
+
+    .app-header .logo-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      background: linear-gradient(135deg, var(--accent), #8b5cf6);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      box-shadow: 0 8px 32px var(--accent-glow);
+    }
+
+    .app-header .logo-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: white;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .app-header h1 {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #f1f5f9, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .app-header p {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* Card */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Input Section */
+    .input-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+    }
+
+    .input-wrapper {
+      position: relative;
+      display: flex;
+      gap: 8px;
+    }
+
+    .secret-input {
+      flex: 1;
+      padding: 14px 16px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 1px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .secret-input::placeholder {
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      letter-spacing: 0;
+      font-weight: 400;
+    }
+
+    .secret-input:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .btn-generate {
+      padding: 14px 20px;
+      background: linear-gradient(135deg, var(--accent), #2563eb);
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .btn-generate:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px var(--accent-glow);
+    }
+
+    .btn-generate:active {
+      transform: translateY(0);
+    }
+
+    .error-msg {
+      font-size: 12px;
+      color: var(--danger);
+      font-weight: 500;
+      min-height: 18px;
+      transition: opacity 0.2s;
+    }
+
+    /* TOTP Display */
+    .totp-display {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      padding: 8px 0;
+    }
+
+    .totp-display.active {
+      display: flex;
+      animation: fadeInUp 0.4s ease;
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Timer Ring */
+    .timer-container {
+      position: relative;
+      width: 160px;
+      height: 160px;
+    }
+
+    .timer-ring {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .timer-ring-track {
+      fill: none;
+      stroke: var(--ring-track);
+      stroke-width: 6;
+    }
+
+    .timer-ring-fill {
+      fill: none;
+      stroke: var(--ring-fill);
+      stroke-width: 6;
+      stroke-linecap: round;
+      transition: stroke-dashoffset 0.5s linear, stroke 0.3s;
+    }
+
+    .timer-ring-fill.warning {
+      stroke: #f59e0b;
+    }
+
+    .timer-ring-fill.danger {
+      stroke: var(--danger);
+    }
+
+    .timer-inner {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .timer-seconds {
+      font-family: var(--font-mono);
+      font-size: 40px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+
+    .timer-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* OTP Code */
+    .otp-section {
+      text-align: center;
+      width: 100%;
+    }
+
+    .otp-code-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .otp-code {
+      font-family: var(--font-mono);
+      font-size: 48px;
+      font-weight: 800;
+      letter-spacing: 12px;
+      color: var(--code-color);
+      text-indent: 12px;
+      user-select: all;
+      transition: color 0.3s;
+    }
+
+    .otp-code.refreshing {
+      animation: codePulse 0.4s ease;
+    }
+
+    @keyframes codePulse {
+      0% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.96); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+
+    /* Copy Button */
+    .btn-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      background: var(--bg-input);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-copy:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .btn-copy.copied {
+      border-color: var(--success);
+      color: var(--success);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .btn-copy svg {
+      width: 16px;
+      height: 16px;
+      fill: none;
+      stroke: currentColor;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    /* Info Section */
+    .info-section {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-key {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .info-value {
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* Footer */
+    .app-footer {
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    .app-footer p {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .app-footer a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 480px) {
+      body {
+        padding: 16px;
+        align-items: flex-start;
+        padding-top: 40px;
+      }
+
+      .card {
+        padding: 24px 18px;
+        border-radius: 16px;
+      }
+
+      .otp-code {
+        font-size: 36px;
+        letter-spacing: 8px;
+        text-indent: 8px;
+      }
+
+      .timer-container {
+        width: 130px;
+        height: 130px;
+      }
+
+      .timer-seconds {
+        font-size: 32px;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .otp-code {
+        font-size: 30px;
+        letter-spacing: 6px;
+        text-indent: 6px;
+      }
+
+      .input-wrapper {
+        flex-direction: column;
+      }
+
+      .btn-generate {
+        width: 100%;
+      }
+    }
+
+    /* Notification Toast */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--bg-card);
+      border: 1px solid var(--success);
+      color: var(--success);
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Back Link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 0;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+    <!-- Back Navigation — points to parent site root -->
+    <a href="https://rajabayangan.com/" class="back-link">&larr; Kembali ke Dashboard</a>
+
+    <!-- Header -->
+    <div class="app-header">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+        </svg>
+      </div>
+      <h1>TOTP Authenticator</h1>
+      <p>RFC 6238 &middot; Time-Based One-Time Password</p>
+    </div>
+
+    <!-- Input Card -->
+    <div class="card">
+      <div class="input-section">
+        <label class="input-label" for="secretKey">Base32 Secret Key</label>
+        <div class="input-wrapper">
+          <input
+            type="text"
+            id="secretKey"
+            class="secret-input"
+            placeholder="Masukkan secret key (contoh: JBSWY3DPEHPK3PXP)"
+            autocomplete="off"
+            spellcheck="false"
+          >
+          <button class="btn-generate" id="btnGenerate" onclick="startTOTP()">Generate</button>
+        </div>
+        <div class="error-msg" id="errorMsg"></div>
+      </div>
+    </div>
+
+    <!-- TOTP Display Card -->
+    <div class="card">
+      <div class="totp-display" id="totpDisplay">
+        <!-- Timer Ring -->
+        <div class="timer-container">
+          <svg class="timer-ring" viewBox="0 0 160 160">
+            <circle class="timer-ring-track" cx="80" cy="80" r="70"></circle>
+            <circle class="timer-ring-fill" id="timerRing" cx="80" cy="80" r="70"
+              stroke-dasharray="439.82"
+              stroke-dashoffset="0">
+            </circle>
+          </svg>
+          <div class="timer-inner">
+            <div class="timer-seconds" id="timerSeconds">30</div>
+            <div class="timer-label">detik</div>
+          </div>
+        </div>
+
+        <!-- OTP Code -->
+        <div class="otp-section">
+          <div class="otp-code-wrapper">
+            <span class="otp-code" id="otpCode">------</span>
+          </div>
+          <button class="btn-copy" id="btnCopy" onclick="copyCode()">
+            <svg id="copyIcon" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            <span id="copyText">Salin Kode</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Empty state when no key entered -->
+      <div class="totp-display active" id="emptyState" style="padding: 40px 0;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+        </svg>
+        <p style="color: var(--text-muted); font-size: 13px; text-align: center; line-height: 1.6;">
+          Masukkan Base32 secret key di atas<br>untuk menghasilkan kode TOTP
+        </p>
+      </div>
+    </div>
+
+    <!-- Info Card -->
+    <div class="card" id="infoCard" style="display: none;">
+      <div class="info-section">
+        <div class="info-row">
+          <span class="info-key">Algoritma</span>
+          <span class="info-value">HMAC-SHA1</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Digit</span>
+          <span class="info-value">6</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Periode</span>
+          <span class="info-value">30 detik</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Epoch</span>
+          <span class="info-value" id="infoEpoch">—</span>
+        </div>
+        <div class="info-row">
+          <span class="info-key">Time Step (T)</span>
+          <span class="info-value" id="infoStep">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="app-footer">
+      <p>Implementasi murni HTML, CSS &amp; JavaScript &middot; Standar <a href="https://datatracker.ietf.org/doc/html/rfc6238" target="_blank" rel="noopener">RFC 6238</a></p>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">Kode berhasil disalin!</div>
+
+<script>
+  /**
+   * TOTP Authenticator — RFC 6238 Implementation
+   * Pure JavaScript, no external dependencies.
+   *
+   * Flow:
+   *   1. User enters Base32 secret key
+   *   2. Base32 → Uint8Array (raw bytes)
+   *   3. Compute time step T = floor(unix_seconds / 30)
+   *   4. T → 8-byte big-endian counter
+   *   5. HMAC-SHA1(secret, counter) via Web Crypto API
+   *   6. Dynamic truncation → 6-digit OTP
+   *   7. Auto-refresh every period with countdown ring
+   */
+
+  // ─── State ────────────────────────────────────────────────────────
+  let currentSecret = null;   // Uint8Array of decoded secret
+  let currentCode = '';       // Current 6-digit OTP string
+  let tickInterval = null;    // setInterval ID for the countdown
+
+  // ─── DOM References ───────────────────────────────────────────────
+  const elSecretInput  = document.getElementById('secretKey');
+  const elErrorMsg     = document.getElementById('errorMsg');
+  const elTotpDisplay  = document.getElementById('totpDisplay');
+  const elEmptyState   = document.getElementById('emptyState');
+  const elOtpCode      = document.getElementById('otpCode');
+  const elTimerSeconds = document.getElementById('timerSeconds');
+  const elTimerRing    = document.getElementById('timerRing');
+  const elInfoCard     = document.getElementById('infoCard');
+  const elInfoEpoch    = document.getElementById('infoEpoch');
+  const elInfoStep     = document.getElementById('infoStep');
+  const elToast        = document.getElementById('toast');
+  const elCopyText     = document.getElementById('copyText');
+  const elBtnCopy      = document.getElementById('btnCopy');
+
+  const RING_CIRCUMFERENCE = 2 * Math.PI * 70; // ≈ 439.82
+
+  // ─── Base32 Decoder (RFC 4648) ────────────────────────────────────
+  const BASE32_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+
+  function base32Decode(input) {
+    // Normalize: uppercase, strip spaces/dashes/padding
+    const str = input.toUpperCase().replace(/[\s\-=]/g, '');
+
+    if (str.length === 0) {
+      throw new Error('Secret key tidak boleh kosong');
+    }
+
+    // Validate characters
+    for (let i = 0; i < str.length; i++) {
+      if (BASE32_CHARS.indexOf(str[i]) === -1) {
+        throw new Error(`Karakter tidak valid: "${str[i]}" pada posisi ${i + 1}`);
+      }
+    }
+
+    // Decode
+    let bits = '';
+    for (let i = 0; i < str.length; i++) {
+      const val = BASE32_CHARS.indexOf(str[i]);
+      bits += val.toString(2).padStart(5, '0');
+    }
+
+    const bytes = new Uint8Array(Math.floor(bits.length / 8));
+    for (let i = 0; i < bytes.length; i++) {
+      bytes[i] = parseInt(bits.substring(i * 8, i * 8 + 8), 2);
+    }
+
+    return bytes;
+  }
+
+  // ─── HMAC-SHA1 via Web Crypto API ────────────────────────────────
+  async function hmacSHA1(keyBytes, messageBytes) {
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      keyBytes,
+      { name: 'HMAC', hash: { name: 'SHA-1' } },
+      false,
+      ['sign']
+    );
+    const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageBytes);
+    return new Uint8Array(signature);
+  }
+
+  // ─── TOTP Core (RFC 6238) ────────────────────────────────────────
+  async function generateTOTP(secretBytes, timeStep) {
+    // Convert time step to 8-byte big-endian counter
+    const counter = new Uint8Array(8);
+    let tmp = timeStep;
+    for (let i = 7; i >= 0; i--) {
+      counter[i] = tmp & 0xff;
+      tmp = Math.floor(tmp / 256);
+    }
+
+    // HMAC-SHA1
+    const hmac = await hmacSHA1(secretBytes, counter);
+
+    // Dynamic truncation (RFC 4226 Section 5.4)
+    const offset = hmac[hmac.length - 1] & 0x0f;
+    const binary =
+      ((hmac[offset]     & 0x7f) << 24) |
+      ((hmac[offset + 1] & 0xff) << 16) |
+      ((hmac[offset + 2] & 0xff) <<  8) |
+      ((hmac[offset + 3] & 0xff));
+
+    // 6-digit OTP
+    const otp = binary % 1000000;
+    return otp.toString().padStart(6, '0');
+  }
+
+  // ─── Time Helpers ─────────────────────────────────────────────────
+  function getCurrentTimeStep() {
+    return Math.floor(Date.now() / 1000 / 30);
+  }
+
+  function getSecondsRemaining() {
+    return 30 - (Math.floor(Date.now() / 1000) % 30);
+  }
+
+  // ─── UI Update ────────────────────────────────────────────────────
+  function updateTimerUI(seconds) {
+    elTimerSeconds.textContent = seconds;
+
+    // Ring progress
+    const progress = seconds / 30;
+    const offset = RING_CIRCUMFERENCE * (1 - progress);
+    elTimerRing.style.strokeDashoffset = offset;
+
+    // Color states
+    elTimerRing.classList.remove('warning', 'danger');
+    if (seconds <= 5) {
+      elTimerRing.classList.add('danger');
+    } else if (seconds <= 10) {
+      elTimerRing.classList.add('warning');
+    }
+  }
+
+  async function refreshCode() {
+    if (!currentSecret) return;
+
+    const timeStep = getCurrentTimeStep();
+    const code = await generateTOTP(currentSecret, timeStep);
+
+    // Only animate if code actually changed
+    if (code !== currentCode) {
+      currentCode = code;
+      elOtpCode.classList.add('refreshing');
+      setTimeout(() => elOtpCode.classList.remove('refreshing'), 400);
+    }
+
+    elOtpCode.textContent = code.substring(0, 3) + ' ' + code.substring(3);
+
+    // Update info
+    const epoch = Math.floor(Date.now() / 1000);
+    elInfoEpoch.textContent = epoch;
+    elInfoStep.textContent = timeStep;
+  }
+
+  // ─── Main Tick Loop ───────────────────────────────────────────────
+  let lastTimeStep = 0;
+
+  function tick() {
+    const seconds = getSecondsRemaining();
+    updateTimerUI(seconds);
+
+    const step = getCurrentTimeStep();
+    if (step !== lastTimeStep) {
+      lastTimeStep = step;
+      refreshCode();
+    }
+  }
+
+  // ─── Start TOTP ──────────────────────────────────────────────────
+  async function startTOTP() {
+    const raw = elSecretInput.value.trim();
+    elErrorMsg.textContent = '';
+
+    try {
+      currentSecret = base32Decode(raw);
+    } catch (err) {
+      elErrorMsg.textContent = err.message;
+      return;
+    }
+
+    // Show TOTP display, hide empty state
+    elEmptyState.classList.remove('active');
+    elTotpDisplay.classList.add('active');
+    elInfoCard.style.display = '';
+
+    // Generate first code immediately
+    lastTimeStep = getCurrentTimeStep();
+    await refreshCode();
+    updateTimerUI(getSecondsRemaining());
+
+    // Start tick loop (clear previous if any)
+    if (tickInterval) clearInterval(tickInterval);
+    tickInterval = setInterval(tick, 500);
+  }
+
+  // ─── Copy to Clipboard ───────────────────────────────────────────
+  async function copyCode() {
+    if (!currentCode) return;
+
+    try {
+      await navigator.clipboard.writeText(currentCode);
+      elBtnCopy.classList.add('copied');
+      elCopyText.textContent = 'Tersalin!';
+
+      // Show toast
+      elToast.classList.add('show');
+      setTimeout(() => elToast.classList.remove('show'), 2000);
+
+      // Reset button
+      setTimeout(() => {
+        elBtnCopy.classList.remove('copied');
+        elCopyText.textContent = 'Salin Kode';
+      }, 2000);
+    } catch (err) {
+      // Fallback for older browsers
+      const textarea = document.createElement('textarea');
+      textarea.value = currentCode;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+
+      elBtnCopy.classList.add('copied');
+      elCopyText.textContent = 'Tersalin!';
+      setTimeout(() => {
+        elBtnCopy.classList.remove('copied');
+        elCopyText.textContent = 'Salin Kode';
+      }, 2000);
+    }
+  }
+
+  // ─── Enter Key Support ────────────────────────────────────────────
+  elSecretInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') startTOTP();
+  });
+
+  // Auto-uppercase input for better UX
+  elSecretInput.addEventListener('input', function() {
+    const pos = this.selectionStart;
+    this.value = this.value.toUpperCase();
+    this.setSelectionRange(pos, pos);
+  });
+</script>
+</body>
+</html>

@@ -476,11 +476,31 @@
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
+
+    /* Back Link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 0;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--accent);
+    }
   </style>
 </head>
 <body>
 
   <div class="app-container">
+    <!-- Back Navigation -->
+    <a href="index.html" class="back-link">&larr; Kembali ke Dashboard</a>
+
     <!-- Header -->
     <div class="app-header">
       <div class="logo-icon">
